@@ -6,13 +6,12 @@ function App() {
   const task = {
     name: "",
     id: 0,
-    status: "ACTIVE" | "DONE"
+    status: "ACTIVE" | "DONE",
   };
   const [todo, setTodo] = useState([]);
   const [inputValue, setInputValue] = useState("");
   const [error, setError] = useState("");
   const [filterState, setFilterState] = useState("ALL");
-  const [noTask, setNoTask] = useState("No tasks yet. Add task!")
 
   const handleInputChange = (event) => {
     setInputValue(event.target.value);
@@ -21,7 +20,7 @@ function App() {
   const handleCheckbox = (id) => {
     const Newtodos = todo.map((todo) => {
       if (id === todo.id) {
-        return { ...todo, status: todo.status === "DONE" ?"ACTIVE" :"DONE" };
+        return { ...todo, status: todo.status === "DONE" ? "ACTIVE" : "DONE" };
       } else {
         return todo;
       }
@@ -43,13 +42,14 @@ function App() {
       setInputValue("");
     }
   };
-console.log()
-  
-  // const handleNoTask = () =>{
-  //   if(todo.filter().length!==0){
-  //     setNoTask("")
-  //   }
-  // }
+
+  const handleDeleteButton = (task) => {
+    const deleteTodo = todo.filter((todo) => todo.id !== task.id);
+    setTodo(deleteTodo);
+  };
+
+  const noCompletedTask = todo.filter((todo) => todo.status === "DONE");
+  const noActivedTask = todo.filter((todo) => todo.status === "ACTIVE");
 
   return (
     <div className="App-header">
@@ -57,12 +57,21 @@ console.log()
         <h1>To-Do list</h1>
         <div className="flex">
           <input
-          className="inputChange"
+            className="inputChange"
             placeholder="Add a new task..."
-            value={inputValue}  
+            value={inputValue}
             onChange={handleInputChange}
           ></input>
-          <button className="addButton" onClick={handleAddButton}>Add</button>
+          <button
+            className="addButton"
+            onClick={handleAddButton}
+            onKeyDown={(event) => {
+              if (event.key === "enter") {
+              }
+            }}
+          >
+            Add
+          </button>
         </div>
         {error.length > 1 && <div>{error}</div>}
         <div id="filterState">
@@ -70,7 +79,15 @@ console.log()
           <div onClick={() => handleFilterState("ACTIVE")}>ACTIVE</div>
           <div onClick={() => handleFilterState("DONE")}>DONE</div>
         </div>
-        <div style={{display: todo.length===0 ?"flex" :"none"}}>No tasks yet. Add task!</div>
+        {todo.length === 0 && filterState === "ALL" && (
+          <div>No tasks yet. Add new task!</div>
+        )}
+        {noActivedTask.length === 0 && filterState === "ACTIVE" && (
+          <div>No tasks yet. Add new task!</div>
+        )}
+        {noCompletedTask.length === 0 && filterState === "DONE" && (
+          <div>No tasks yet. Add new task!</div>
+        )}
         {todo
           .filter((todo) => {
             if (filterState === "ALL") {
@@ -81,23 +98,25 @@ console.log()
           })
           .map((todo, index) => {
             return (
-              <div key={index}>
-                <input
-                  type="checkbox"
-                  checked={todo.status === "DONE"}
-                  onChange={() => handleCheckbox(todo.id)}
-                ></input>
-                {todo.name}
+              <div className="taskSection" key={index}>
+                <div>
+                  <input
+                    type="checkbox"
+                    checked={todo.status === "DONE"}
+                    onChange={() => handleCheckbox(todo.id)}
+                  ></input>
+                  {todo.name}
+                </div>
+                <button onClick={() => handleDeleteButton(todo)}>DELETE</button>
               </div>
             );
           })}
-          <div className="flex">
-            <div>Powered by</div>
-            <a href="https://pinecone.mn/">Pinecone academy</a>
-          </div>
+        <div className="flex">
+          <div>Powered by</div>
+          <a href="https://pinecone.mn/">Pinecone academy</a>
+        </div>
       </div>
     </div>
   );
 }
-
 export default App;
